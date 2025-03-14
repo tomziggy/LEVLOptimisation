@@ -13,8 +13,8 @@ Make sure correct Linux Distro and Version
 https://www.salome-platform.org/
 
 # Step 4 - Setup Directories
-replace tomgorringe with user
-
+Replace tomgorringe with user
+'''
 /home/tomgorringe
 │── OpenFOAM/                
 │   ├── tomgorringe-v2312/              
@@ -34,7 +34,7 @@ replace tomgorringe with user
 │── run_allrun.bashrc
 │
 │── pngfolder/
-
+'''
 
 # Step 5 - Edit Scripts
 To run through your directories rather than
