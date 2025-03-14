@@ -31,6 +31,8 @@ Replace tomgorringe with user
 │
 │── generate_airfoil_template.py
 │
+│── generate_airfoil_template_2d.py
+│
 │── run_allrun.bashrc
 │
 │── pngfolder/
