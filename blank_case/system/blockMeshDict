@@ -58,6 +58,8 @@ blocks
 
 boundary
 (
+
+
     top
     {
         type symmetryPlane;

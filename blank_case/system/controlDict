@@ -22,9 +22,9 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         1100;
+endTime         110;
 
-deltaT          1;
+deltaT          0.1;
 
 writeControl    timeStep;
 
@@ -50,6 +50,14 @@ functions
  //   #include "streamLines"
  //   #include "wallBoundedStreamLines"
     #include "forceCoeffs"
+    yPlus
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        writeControl    writeTime;
+        log             true; // Log the y+ values in the console
+        patches         ("(airfoil)"); // Replace with the patch name of your walls
+    }
 }
 
 

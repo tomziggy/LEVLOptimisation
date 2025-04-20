@@ -5,6 +5,8 @@ cd ${0%/*} || exit 1    # run from this directory
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
 #runApplication surfaceFeatureExtract
+runApplication surfaceTransformPoints -rotate "(0 0 1) 1" constant/triSurface/airfoil.stl constant/triSurface/airfoil.stl
+runApplication surfaceFeatures
 
 
 runApplication blockMesh
