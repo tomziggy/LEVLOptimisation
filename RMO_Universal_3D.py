@@ -290,7 +290,7 @@ start = time.time()
 #setcamber = 0.06
 #camberlocation = 0.4
 #maximumthickness = 0.12
-epsilon = 0.3 #Expected Improvement Variable - Balances Exploration and Exploitation
+epsilon = 0.2 #Expected Improvement Variable - Balances Exploration and Exploitation
 alpha = 0.1 #MTCH Scalarisation Deviation Punishment Term
 gpmeanprior = "max"
 Variable1 = "Maximum Camber (%)"
@@ -316,7 +316,7 @@ print(Variable3,lowerBound[2],"to",upperBound[2])
 
 print("Setting Condition Bounds")
 clowerBound = [0, 5] #Lower Limits of AOA (deg) and U (m/s)
-cupperBound = [15, 30] #Upper Limits of AOA (deg) and U (m/s)
+cupperBound = [20, 25] #Upper Limits of AOA (deg) and U (m/s)
 cinitialSampleSize = 5 #Number of Robust Condition Sample Combinations
 print("AOA",clowerBound[0],"to",cupperBound[0])
 print("U",clowerBound[1],"to",cupperBound[1])
@@ -334,8 +334,6 @@ csampler = qmc.LatinHypercube(d=len(clowerBound))
 csample = csampler.random(n=cinitialSampleSize) 
 conditions = np.array(qmc.scale(csample, clowerBound, cupperBound)) 
 
-conditions[:,0] = np.array([0, 5, 10, 15, 20]).T
-conditions[:,1] = 15
 
 print("Conditions:")
 print(np.vstack([np.array(condtitle).reshape(1, -1), conditions.astype(str)]))
@@ -594,7 +592,7 @@ while iteration < 100 and (iteration < 10 or np.max(ei) > 1e-7):
     plt.close()
 
     # Save updated Pareto CSV for this iteration
-    csv_path = f"results/pareto_results_iter{iteration}.csv"
+    csv_path = f"results/pareto_results.csv"
     header = ["Camber", "Location", "Thickness", "Mean_Cl", "Mean_1/Cd", "Label"]
     rows = [
         [designs[i, 0], designs[i, 1], designs[i, 2], cl_values[i], ld_values[i], point_labels[i]]

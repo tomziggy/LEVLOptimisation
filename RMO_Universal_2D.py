@@ -308,14 +308,14 @@ condtitle = ["Angle of Attack", "Free Stream Velocity"]
 print("Setting Feature Bounds")
 lowerBound = [0.2,0.01] #Lower Limits of Variable1 and Variable2
 upperBound = [0.8,0.25] #Upper Limits of Variable1 and Variable2
-initialSampleSize = 8 #Number of Initial Parameter Sample Combinations
+initialSampleSize = 10 #Number of Initial Parameter Sample Combinations
 print(Variable1,lowerBound[0],"to",upperBound[0])
 print(Variable1,lowerBound[1],"to",upperBound[1])
 
 
 print("Setting Condition Bounds")
 clowerBound = [0, 5] #Lower Limits of AOA (deg) and U (m/s)
-cupperBound = [15, 30] #Upper Limits of AOA (deg) and U (m/s)
+cupperBound = [20, 25] #Upper Limits of AOA (deg) and U (m/s)
 cinitialSampleSize = 5 #Number of Robust Condition Sample Combinations
 print("AOA",clowerBound[0],"to",cupperBound[0])
 print("U",clowerBound[1],"to",cupperBound[1])
@@ -334,9 +334,6 @@ print("Initialising Condition LHS")
 csampler = qmc.LatinHypercube(d=len(clowerBound))
 csample = csampler.random(n=cinitialSampleSize) 
 conditions = np.array(qmc.scale(csample, clowerBound, cupperBound)) 
-
-conditions[:,0] = np.array([0, 5, 10, 15, 20]).T
-conditions[:,1] = 15
 
 print("Conditions:")
 print(np.vstack([np.array(condtitle).reshape(1, -1), conditions.astype(str)]))
@@ -441,7 +438,7 @@ print(scalarised)
 
 #------------------------------------------------------INITIAL GP TRAINING---------------------------------------------------
 
-globalGP = GPTrain(features[:, 1:3].reshape(-1, 1), scalarised, meanPrior=gpmeanprior)
+globalGP = GPTrain(features[:, 1:3], scalarised, meanPrior=gpmeanprior)
 best_idx = np.argmax(scalarised)
 best_x = features[best_idx]
 best_y = scalarised[best_idx]
@@ -481,7 +478,6 @@ plt.xlabel(Variable1)
 plt.title(f"EI Surface at Iteration 0")
 plt.legend()
 plt.savefig(f"{destpng}/ei_iter0.png")
-plt.show()
 
 print("Plots Printed")
 
@@ -496,14 +492,14 @@ while iteration < 100 and (iteration < 10 or np.max(ei) > 1e-7):
     scalarised = (scalarised - np.mean(scalarised)) / np.std(scalarised)
     globalGP = GPTrain(features[:, 1:3], scalarised, meanPrior=gpmeanprior)
 
-    rangePredictions, _ = BOGPEval(globalGP, x_range)
+    rangePredictions, _ = BOGPEval(globalGP, grid_points)
 
     best_idx = np.argmax(scalarised)
     best_x = features[best_idx]
     best_y = scalarised[best_idx]
     print(f"📌 Current Best | Index: {best_idx}, Features: {best_x}, Targets: {best_y}")
 
-    ei = expectedImprovement(x_range, globalGP, best_y, epsilon)
+    ei = expectedImprovement(grid_points, globalGP, best_y, epsilon)
     result = optimize_ei(bounds, globalGP, best_y, epsilon)
     new_x = result.x
     print("✨ New candidate design (from EI):", new_x)
@@ -552,8 +548,8 @@ while iteration < 100 and (iteration < 10 or np.max(ei) > 1e-7):
     sc = plt.scatter(grid_points[:, 0], grid_points[:, 1], c=rangePredictions, cmap='viridis')
     plt.scatter(features[:, 1], features[:, 2], c='blue', marker='X', label='Dataset')
     plt.colorbar(sc, label="Objective Values")
-    plt.ylabel(Variable1)
-    plt.xlabel(Variable2)
+    plt.xlabel(Variable1)
+    plt.ylabel(Variable2)
     plt.legend()
     plt.savefig(f"{destpng}/iteration{iteration}.png")
     plt.close()
@@ -565,8 +561,8 @@ while iteration < 100 and (iteration < 10 or np.max(ei) > 1e-7):
     plt.contourf(grid_x, grid_y, ei_surface, levels=50)
     plt.colorbar(label='EI')
     plt.scatter(features[:, 1], features[:, 2], c='red', marker='x')
-    plt.ylabel(Variable1)
-    plt.xlabel(Variable2)
+    plt.xlabel(Variable1)
+    plt.ylabel(Variable2)
     plt.title(f"EI Surface at Iteration {iteration}")
     plt.legend()
     plt.savefig(f"{destpng}/ei_iter{iteration}.png")
@@ -635,7 +631,7 @@ while iteration < 100 and (iteration < 10 or np.max(ei) > 1e-7):
     plt.close()
 
     # Save updated Pareto CSV for this iteration
-    csv_path = f"results/pareto_results_iter{iteration}.csv"
+    csv_path = f"results/pareto_results.csv"
     header = ["Camber", "Location", "Thickness", "Mean_Cl", "Mean_1/Cd", "Label"]
     rows = [
         [designs[i, 0], designs[i, 1], designs[i, 2], cl_values[i], ld_values[i], point_labels[i]]
@@ -689,9 +685,9 @@ print(f"Mean 1/Cd   : {best_score[1]:.4f}")
 
 # Best GP-predicted design
 print("\n🔎 Performing Bayesian search for best predicted scalarised objective over thickness grid...")
-final_preds, _ = BOGPEval(globalGP, x_range)
+final_preds, _ = BOGPEval(globalGP, grid_points)
 best_idx_gp = np.argmax(final_preds)
-best_design_gp = x_range[best_idx_gp][0]
+best_design_gp = grid_points[best_idx_gp][0]
 best_score_gp = final_preds[best_idx_gp]
 
 print("\n🏁 Final GP-Based Best Design (Predicted):")
@@ -699,15 +695,15 @@ print(f"Thickness                   : {best_design_gp:.4f}")
 print(f"Predicted Scalarised Score : {best_score_gp:.4f}")
 print("Converged!\n")
 
-# Final plot: GP prediction over thickness
-fig = plt.figure(figsize=(10, 6))
-plt.plot(x_range, final_preds, color='purple', label='Final GP Prediction')
-plt.scatter(features[:, 2], scalarised, color='blue', label='Sampled Points', marker='x')
+
+fig = plt.figure(figsize=(12, 10))
+sc = plt.scatter(grid_points[:, 0], grid_points[:, 1], c=rangePredictions, cmap='viridis')
+plt.scatter(features[:, 1], features[:, 2], c='blue', marker='X', label='Dataset')
 plt.scatter(best_design_gp, best_score_gp, color='gold', edgecolor='black', label='GP Best', marker='*', s=150)
-plt.xlabel("Thickness")
-plt.ylabel("Predicted Scalarised Value")
+plt.colorbar(sc, label="Objective Values")
+plt.xlabel(Variable1)
+plt.ylabel(Variable2)
 plt.title("Final GP Prediction Over Thickness")
-plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("results/converged_thickness_1D.png", dpi=300)

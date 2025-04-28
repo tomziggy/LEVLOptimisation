@@ -641,7 +641,7 @@ while iteration < 50 and (iteration < 5 or np.max(ei) > 1e-7):
     plt.close()
 
     # Save updated Pareto CSV for this iteration
-    csv_path = f"results/pareto_results_iter{iteration}.csv"
+    csv_path = f"results/pareto_results.csv"
     header = ["Camber", "Location", "Thickness", "Mean_Cl", "Mean_1/Cd", "Label"]
     rows = [
         [designs[i, 0], designs[i, 1], designs[i, 2], cl_values[i], ld_values[i], point_labels[i]]
