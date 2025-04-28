@@ -41,10 +41,7 @@ Replace user
 # Step 5 - Edit RMO Scripts
 To run through your directories
 
-# Step 6 - Check Salome and OpenFOAM
-In their directories type 'salome' or 'openfoam232'
-
-# Step 7 - Install Req Python Packages
+# Step 6 - Install Req Python Packages
 numpy
 matplotlib.pyplot
 torch
@@ -61,4 +58,4 @@ itertools
 csv
 
 # Step 8 - Run
-python3 RMO_Universal_2D
+python3 RMO_Universal_..
