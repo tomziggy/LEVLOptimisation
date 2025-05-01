@@ -478,14 +478,14 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig(f"{destpng}/EI_1D_Surface.png")
 
-print("✅ 1D Plots Printed")
+print("1D Plots Printed")
 
 iteration = 0
 
 while iteration < 50 and (iteration < 5 or np.max(ei) > 1e-7):
 
     iteration += 1
-    print(f"\n🔁 Iteration {iteration}")
+    print(f"Iteration {iteration}")
 
     scalarised = MTCHScalarisation(targets,alpha)
     scalarised = (scalarised - np.mean(scalarised)) / np.std(scalarised)
@@ -496,17 +496,17 @@ while iteration < 50 and (iteration < 5 or np.max(ei) > 1e-7):
     best_idx = np.argmax(scalarised)
     best_x = features[best_idx]
     best_y = scalarised[best_idx]
-    print(f"📌 Current Best | Index: {best_idx}, Features: {best_x}, Targets: {best_y}")
+    print(f"Current Best | Index: {best_idx}, Features: {best_x}, Targets: {best_y}")
 
     ei = expectedImprovement(x_range, globalGP, best_y, epsilon)
     result = optimize_ei(bounds, globalGP, best_y, epsilon)
     new_x = result.x
-    print("✨ New candidate design (from EI):", new_x)
+    print("New candidate design (from EI):", new_x)
 
     max_ei = -ei_wrapper(new_x, globalGP, best_y, epsilon)
     ei_history.append(max_ei)
 
-    print(f"📈 Max EI at new_x: {max_ei}")
+    print(f"Max EI at new_x: {max_ei}")
 
     def build_feature_condition_matrix(design, conditions):
         return np.array([[setcamber, camberlocation, design[0], cond[0], cond[1]] for cond in conditions])
@@ -653,7 +653,7 @@ while iteration < 50 and (iteration < 5 or np.max(ei) > 1e-7):
         writer.writerow(header)
         writer.writerows(rows)
 
-    print(f"✅ Iteration {iteration}: Pareto front and CSV saved.")
+    print(f"Iteration {iteration}: Pareto front and CSV saved.")
 
     csv_path = "results/optimisation_log.csv"
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
@@ -677,20 +677,20 @@ while iteration < 50 and (iteration < 5 or np.max(ei) > 1e-7):
         ]
         writer.writerow(row)
 
-    print(f"📄 Iteration {iteration} logged to optimisation_log.csv")
+    print(f"Iteration {iteration} logged to optimisation_log.csv")
 
 
 
 
 
-print("\n✅ Optimisation Complete!")
+print("\nOptimisation Complete!")
 
 # Find best sampled design
 best_idx = np.argmax(scalarised)
 best_design = features[best_idx]
 best_score = targets[best_idx]
 
-print("\n🏆 Most Robust Sampled Design Found:")
+print("Most Robust Sampled Design Found:")
 print(f"Camber      : {best_design[0]:.4f}")
 print(f"Location    : {best_design[1]:.4f}")
 print(f"Thickness   : {best_design[2]:.4f}")
@@ -698,13 +698,13 @@ print(f"Mean Cl     : {best_score[0]:.4f}")
 print(f"Mean 1/Cd   : {best_score[1]:.4f}")
 
 # Best GP-predicted design
-print("\n🔎 Performing Bayesian search for best predicted scalarised objective over thickness grid...")
+print("Performing Bayesian search for best predicted scalarised objective over thickness grid...")
 final_preds, _ = BOGPEval(globalGP, x_range)
 best_idx_gp = np.argmax(final_preds)
 best_design_gp = x_range[best_idx_gp][0]
 best_score_gp = final_preds[best_idx_gp]
 
-print("\n🏁 Final GP-Based Best Design (Predicted):")
+print("Final GP-Based Best Design (Predicted):")
 print(f"Thickness                   : {best_design_gp:.4f}")
 print(f"Predicted Scalarised Score : {best_score_gp:.4f}")
 print("Converged!\n")
